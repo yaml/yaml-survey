@@ -1,0 +1,15 @@
+#!/usr/bin/env ys-0
+
+urls =::
+  engineers-form-url: ENGINEER_FORM_URL
+  devops-managers-form-url: DEVOPS_FORM_URL
+  executives-form-url: LEADERSHIP_FORM_URL
+
+defn main(template config):
+  config =: config:read:yaml/load
+  print:
+    reduce-kv _ template:read urls:
+      fn(t k v):
+        if config.$k:
+          replace t qr(v): config.$k
+          else: t

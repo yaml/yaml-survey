@@ -1,0 +1,149 @@
+#!/usr/bin/env python3
+
+"""
+Utility script to enable email collection on existing Google Forms via the API.
+
+This script reads form URLs from config.yaml and programmatically enables
+the emailCollectionType setting to VERIFIED for all existing forms.
+
+Usage:
+    ./update-existing-forms
+"""
+
+from google.oauth2.credentials import Credentials
+from google_auth_oauthlib.flow import InstalledAppFlow
+from google.auth.transport.requests import Request
+from googleapiclient.discovery import build
+from googleapiclient.errors import HttpError
+import os.path
+import pickle
+import yaml
+import sys
+import re
+
+# If modifying these scopes, delete the file token.pickle.
+SCOPES = [
+    'https://www.googleapis.com/auth/forms.body',
+]
+
+
+def get_credentials():
+    """Get or create credentials for Google Forms API."""
+    creds = None
+    if os.path.exists('token.pickle'):
+        with open('token.pickle', 'rb') as token:
+            creds = pickle.load(token)
+
+    if not creds or not creds.valid:
+        if creds and creds.expired and creds.refresh_token:
+            creds.refresh(Request())
+        else:
+            flow = InstalledAppFlow.from_client_secrets_file(
+                'credentials.json', SCOPES)
+            creds = flow.run_local_server(port=0)
+
+        with open('token.pickle', 'wb') as token:
+            pickle.dump(creds, token)
+
+    return creds
+
+
+def extract_form_id(url):
+    """Extract form ID from Google Forms URL."""
+    match = re.search(r'/forms/d/([a-zA-Z0-9-_]+)', url)
+    return match.group(1) if match else None
+
+
+def enable_email_collection(service, form_id, form_name):
+    """Enable VERIFIED email collection for a form."""
+    try:
+        update_request = {
+            'requests': [{
+                'updateSettings': {
+                    'settings': {
+                        'emailCollectionType': 'VERIFIED'
+                    },
+                    'updateMask': 'emailCollectionType'
+                }
+            }]
+        }
+
+        service.forms().batchUpdate(
+            formId=form_id,
+            body=update_request
+        ).execute()
+
+        print(f"  ✓ Email collection enabled for {form_name}")
+        return True
+
+    except HttpError as error:
+        print(f"  ✗ Error updating {form_name}: {error}")
+        return False
+
+
+def main():
+    """Enable email collection on all existing forms."""
+    # Load config.yaml
+    config_path = 'config.yaml'
+    if not os.path.exists(config_path):
+        print(f"Error: {config_path} not found.")
+        print("Please run this script from the repository root directory.")
+        sys.exit(1)
+
+    with open(config_path, 'r') as f:
+        config = yaml.safe_load(f)
+
+    # Find all edit URLs
+    edit_urls = {key: value for key, value in config.items() if key.endswith('-edit-url')}
+
+    if not edit_urls:
+        print("No form edit URLs found in config.yaml")
+        sys.exit(1)
+
+    print("=" * 80)
+    print("Enabling Email Collection on Existing Forms")
+    print("=" * 80)
+    print(f"\nFound {len(edit_urls)} form(s) to update\n")
+
+    # Get credentials and build service
+    print("Authenticating with Google Forms API...")
+    creds = get_credentials()
+    service = build('forms', 'v1', credentials=creds)
+    print("✓ Authenticated\n")
+
+    # Update each form
+    success_count = 0
+    for key, edit_url in sorted(edit_urls.items()):
+        survey_name = key.replace('-edit-url', '')
+        form_id = extract_form_id(edit_url)
+
+        print(f"Updating {survey_name}...")
+        if enable_email_collection(service, form_id, survey_name):
+            success_count += 1
+
+    print(f"\n{'=' * 80}")
+    print("SUMMARY")
+    print("=" * 80)
+    print(f"\nSuccessfully updated: {success_count}/{len(edit_urls)} form(s)")
+
+    if success_count == len(edit_urls):
+        print("\n✓ All forms now have email collection enabled!")
+        print("\nWhat this means:")
+        print("  • Respondents will be required to sign in with Google")
+        print("  • Email addresses will be automatically collected")
+        print("  • When you manually link spreadsheets, they will include 'Email Address' column")
+        print("\nNext step:")
+        print("  • Manually link response spreadsheets (this cannot be automated)")
+        print("  • Forms → Responses tab → Click Sheets icon → Select existing spreadsheet")
+    elif success_count > 0:
+        print("\n⚠ Some forms were updated, but some failed.")
+        print("Check the error messages above for details.")
+    else:
+        print("\n✗ Failed to update any forms.")
+        print("Check your credentials and API permissions.")
+
+    print("\n" + "=" * 80)
+
+
+if __name__ == '__main__':
+    main()

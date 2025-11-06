@@ -1,0 +1,322 @@
+title: "YAML Infrastructure Survey - Executive Leadership"
+description: |
+  Thank you for taking the time to share your perspective! This brief survey helps us understand how technology leaders think about critical open source infrastructure risk and support.
+
+  Estimated time: 5 minutes
+
+sections:
+  - title: "Section 1: About You and Your Organization"
+    required: true
+    questions:
+      - type: text
+        title: Name
+
+      - type: text
+        title: Title
+
+      - type: text
+        title: Company
+
+      - type: radio
+        title: Company Size
+        options:
+          - 1-50 employees
+          - 51-200 employees
+          - 201-1000 employees
+          - 1001-5000 employees
+          - 5000+ employees
+
+      - type: radio
+        title: Industry
+        options:
+          - Technology/Software
+          - Financial Services
+          - Healthcare
+          - Retail/E-commerce
+          - Telecommunications
+          - Government/Public Sector
+        allow_other: true
+
+      - type: checkbox
+        title: Your Areas of Responsibility (Check all that apply)
+        options:
+          - Engineering/Product Development
+          - Infrastructure/Platform/Cloud
+          - Security/Compliance
+          - IT Operations
+          - Risk Management
+          - Technology Strategy
+        allow_other: true
+
+      - type: radio
+        title: Would you like to discuss YAML infrastructure support options?
+        options:
+          - Yes, I'm interested in learning more
+          - Yes, please connect with my team
+          - Maybe, for future reference
+          - No, just providing strategic feedback
+
+  - title: "Section 2: Strategic Infrastructure Dependencies"
+    required: true
+    questions:
+      - type: radio
+        title: How critical is Kubernetes/cloud-native infrastructure to your business?
+        options:
+          - Core to business operations - mission critical
+          - Very important - significant operations depend on it
+          - Important - one of several critical platforms
+          - Moderate importance
+          - Limited use currently
+
+      - type: checkbox
+        title: How dependent is your infrastructure on YAML? (Check all that apply)
+        options:
+          - Kubernetes configurations
+          - CI/CD pipelines
+          - Infrastructure as Code
+          - Application configurations
+          - Service mesh and orchestration
+          - GitOps deployments
+          - Not sure - this is managed by engineering teams
+        allow_other: true
+
+      - type: radio
+        title: "Approximate scale of YAML usage in your organization:"
+        options:
+          - Thousands of configuration files
+          - Tens of thousands of configuration files
+          - Hundreds of thousands+ configuration files
+          - Not sure
+
+  - title: "Section 3: Risk Assessment and Governance"
+    required: true
+    questions:
+      - type: radio
+        title: How do you think about open source dependency risk?
+        options:
+          - Critical concern - actively managing and mitigating
+          - Important consideration - have some policies in place
+          - Moderate concern - monitoring but not systematically managing
+          - Minimal focus currently
+          - Not sure - delegated to technical teams
+
+      - type: radio
+        title: Has OSS supply chain security been discussed at board or executive level?
+        options:
+          - Yes, regularly
+          - Yes, occasionally
+          - Once or twice (likely after Log4j, XZ, or similar incidents)
+          - Not yet
+          - Not applicable
+
+      - type: checkbox
+        title: What compliance or regulatory requirements affect your OSS usage? (Check all that apply)
+        required: false
+        options:
+          - SOC 2
+          - ISO 27001
+          - PCI DSS
+          - HIPAA
+          - FedRAMP
+          - Financial services regulations (SEC, OCC, etc.)
+          - GDPR/privacy regulations
+          - Industry-specific requirements
+          - Internal security/risk policies
+          - None currently
+          - Not sure
+
+      - type: checkbox
+        title: Do you have formal processes for managing OSS risk? (Check all that apply)
+        required: false
+        options:
+          - Software Bill of Materials (SBOM) tracking
+          - Dependency scanning and vulnerability management
+          - Approved OSS vendor/project lists
+          - OSS governance policies
+          - Third-party security assessments
+          - Risk assessment frameworks for critical dependencies
+          - No formal processes currently
+        allow_other: true
+
+  - title: "Section 4: Business Impact and Risk"
+    required: true
+    questions:
+      - type: radio
+        title: "If a critical YAML vulnerability required emergency response, what would be the potential engineering/operational impact?"
+        options:
+          - Severe - would require all-hands emergency response
+          - Significant - would disrupt planned work substantially
+          - Moderate - manageable but would consume resources
+          - Minimal - we could handle it routinely
+
+      - type: checkbox
+        title: "What would be the potential business/financial impact? (Check all that apply)"
+        required: false
+        options:
+          - Could affect revenue or customer operations
+          - Could result in compliance violations
+          - Could damage customer trust or brand
+          - Would be costly but manageable
+          - Minimal direct business impact
+
+      - type: radio
+        title: Have you experienced OSS-related incidents or security issues?
+        options:
+          - Yes - significant impact
+          - Yes - minor impact
+          - No, but we've had close calls
+          - Not to my knowledge
+
+      - type: paragraph
+        title: "If yes, brief description:"
+        required: false
+
+      - type: checkbox
+        title: What keeps you up at night regarding infrastructure dependencies? (Check all that apply)
+        required: false
+        options:
+          - Unmaintained or abandoned critical dependencies
+          - Unknown vulnerabilities in the supply chain
+          - Lack of support or expertise when issues arise
+          - Compliance and audit requirements
+          - Concentration of knowledge in few individuals
+          - Inability to influence roadmap of critical tools
+          - Emergency response capabilities
+        allow_other: true
+
+  - title: "Section 5: Support and Investment Framework"
+    required: true
+    questions:
+      - type: checkbox
+        title: How does your organization currently manage critical OSS dependencies? (Check all that apply)
+        options:
+          - Internal expertise and engineering resources
+          - Commercial vendors where available
+          - OSS community support
+          - Consultants or contractors
+          - GitHub Sponsors or similar for key projects
+          - Ad hoc - no systematic approach
+        allow_other: true
+
+      - type: checkbox
+        title: What would make professional YAML support valuable to your organization? (Check all that apply)
+        required: false
+        options:
+          - Risk mitigation and business continuity
+          - Proactive security notifications and guaranteed response times
+          - Compliance and audit requirements
+          - Access to original creators and deep expertise
+          - Influence over roadmap for business needs
+          - Freeing internal resources for higher-value work
+          - Professional training and knowledge transfer
+          - Peace of mind for board/audit committees
+        allow_other: true
+
+      - type: scale
+        title: "How do you evaluate investment in infrastructure support vs building internal capability?"
+        description: "Rate each factor: 1=Not important, 5=Very important"
+        scale:
+          low: 1
+          high: 5
+          low_label: Not important
+          high_label: Very important
+        items:
+          - Total cost (internal resources vs external support)
+          - Speed and reliability of issue resolution
+          - Strategic importance to business operations
+          - Compliance and risk management requirements
+          - Access to specialized expertise
+          - Ability to focus internal team on differentiated work
+          - Vendor reputation and longevity
+          - Influence over product/roadmap
+
+      - type: checkbox
+        title: Who typically needs to be involved in purchasing decisions for infrastructure support? (Check all that apply)
+        options:
+          - CTO/CIO/VP Engineering
+          - Director of Infrastructure/Platform
+          - CISO/Security leadership
+          - Procurement/Finance
+          - Risk/Compliance teams
+          - Multiple stakeholders across departments
+        allow_other: true
+
+      - type: radio
+        title: "What's your typical procurement timeline for strategic infrastructure investments?"
+        options:
+          - Can move quickly if value is clear (1-2 months)
+          - Standard procurement cycle (3-6 months)
+          - Long evaluation and approval (6-12 months)
+          - Must align with annual budget planning
+          - Varies by size and strategic importance
+
+      - type: radio
+        title: "Approval requirements:"
+        options:
+          - My approval is sufficient
+          - Requires VP/C-level approval
+          - Board or executive committee involvement
+          - Multiple departmental approvals
+          - Procurement process requirements
+
+      - type: radio
+        title: What investment level would be appropriate for professional YAML infrastructure support?
+        options:
+          - Under $25K annually
+          - $25K-$50K annually
+          - $50K-$100K annually
+          - $100K-$250K annually
+          - $250K+ annually
+          - Would depend on scope and value delivered
+          - Need to understand ROI before discussing budget
+
+  - title: "Section 6: Strategic Considerations"
+    required: true
+    questions:
+      - type: radio
+        title: How important is it to have direct relationships with creators/maintainers of critical OSS?
+        options:
+          - Very important - strategic advantage
+          - Somewhat important - valuable but not critical
+          - Nice to have
+          - Not particularly important
+
+      - type: checkbox
+        title: Would having professional YAML support help with any of these initiatives? (Check all that apply)
+        required: false
+        options:
+          - Board-level OSS risk management reporting
+          - Compliance and audit processes
+          - Security posture improvements
+          - Platform modernization or cloud migration
+          - Developer productivity and efficiency
+          - Competitive differentiation
+          - None of the above
+        allow_other: true
+
+      - type: paragraph
+        title: "Beyond YAML, are there other critical OSS dependencies where professional support would be valuable?"
+        required: false
+
+  - title: "Section 7: Additional Context"
+    required: false
+    questions:
+      - type: paragraph
+        title: What else should we understand about your organization's needs or decision process?
+        required: false
+
+      - type: radio
+        title: Would you be interested in a brief executive briefing (30 min) on YAML infrastructure support?
+        options:
+          - Yes, please schedule with me
+          - Yes, please schedule with my team
+          - Maybe, send me more information first
+          - No thanks
+
+      - type: radio
+        title: How did you hear about this survey?
+        required: false
+        options:
+          - Conversation at Kubecon
+          - Referral from colleague
+        allow_other: true

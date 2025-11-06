@@ -1,0 +1,355 @@
+title: "YAML Infrastructure Survey - DevOps/Platform Managers"
+description: |
+  Thank you for taking the time to share your insights! This survey helps us understand the operational challenges teams face managing YAML infrastructure at scale.
+
+  Estimated time: 5-7 minutes
+
+sections:
+  - title: "Section 1: About You and Your Organization"
+    required: true
+    questions:
+      - type: text
+        title: Name
+
+      - type: text
+        title: Job Title
+
+      - type: text
+        title: Company
+
+      - type: radio
+        title: Company Size
+        options:
+          - 1-50 employees
+          - 51-200 employees
+          - 201-1000 employees
+          - 1001-5000 employees
+          - 5000+ employees
+
+      - type: radio
+        title: Industry
+        options:
+          - Technology/Software
+          - Financial Services
+          - Healthcare
+          - Retail/E-commerce
+          - Telecommunications
+          - Government/Public Sector
+        allow_other: true
+
+      - type: radio
+        title: "Your team's primary focus:"
+        options:
+          - DevOps/Platform Engineering
+          - Site Reliability Engineering (SRE)
+          - Infrastructure/Cloud Operations
+          - Release Engineering/CI-CD
+          - Security/Compliance
+        allow_other: true
+
+      - type: radio
+        title: "Team size you manage/work with:"
+        options:
+          - 1-5 people
+          - 6-15 people
+          - 16-30 people
+          - 31-50 people
+          - 50+ people
+
+      - type: radio
+        title: Would you like to be contacted about YAML support options?
+        options:
+          - Yes, I'd like to learn more
+          - Maybe, for future reference
+          - No, just providing feedback
+
+  - title: "Section 2: YAML Infrastructure at Scale"
+    required: true
+    questions:
+      - type: checkbox
+        title: How is YAML used in your organization? (Check all that apply)
+        options:
+          - Kubernetes configurations
+          - CI/CD pipelines (GitHub Actions, GitLab CI, CircleCI, etc.)
+          - Infrastructure as Code (Terraform, Ansible, CloudFormation, etc.)
+          - Application configuration management
+          - Docker/container orchestration
+          - API specifications (OpenAPI, Swagger)
+          - Service mesh configurations
+          - GitOps deployments (ArgoCD, Flux, etc.)
+        allow_other: true
+
+      - type: radio
+        title: "Number of YAML files managed:"
+        options:
+          - Dozens
+          - Hundreds
+          - Thousands
+          - Tens of thousands+
+
+      - type: radio
+        title: "Number of deployments/changes using YAML per day:"
+        options:
+          - Less than 10
+          - 10-100
+          - 100-1,000
+          - 1,000-10,000
+          - 10,000+
+
+      - type: radio
+        title: "Number of repositories with YAML configs:"
+        options:
+          - Less than 10
+          - 10-50
+          - 50-100
+          - 100-500
+          - 500+
+
+      - type: radio
+        title: How critical is YAML to your operations?
+        options:
+          - Mission critical - outages have major business impact
+          - Very important - significant operational impact if issues occur
+          - Important - one of many critical components
+          - Moderately important - manageable impact
+
+      - type: paragraph
+        title: "If you've had YAML-related incidents, what was the impact?"
+        required: false
+
+  - title: "Section 3: Team Challenges and Productivity"
+    required: true
+    questions:
+      - type: checkbox
+        title: What operational challenges does your team face with YAML? (Check all that apply)
+        required: false
+        options:
+          - Inconsistent practices across teams
+          - Configuration sprawl and duplication
+          - Difficulty enforcing standards and validation
+          - Time spent troubleshooting YAML syntax/parsing errors
+          - Security vulnerability management
+          - Lack of proper tooling for YAML at scale
+          - Knowledge gaps - few people understand YAML deeply
+          - Onboarding new team members on YAML best practices
+          - Version compatibility issues across tools
+          - Testing and validating YAML changes
+          - Debugging complex YAML configurations
+        allow_other: true
+
+      - type: radio
+        title: "How much time does your team spend monthly troubleshooting/firefighting YAML issues?"
+        options:
+          - Less than 5 hours
+          - 5-20 hours
+          - 20-40 hours
+          - 40-80 hours
+          - 80+ hours
+
+      - type: radio
+        title: "How much time does your team spend monthly on training/onboarding on YAML?"
+        options:
+          - Less than 5 hours
+          - 5-20 hours
+          - 20-40 hours
+          - 40+ hours
+
+      - type: radio
+        title: "How much time does your team spend monthly staying current with YAML security updates?"
+        options:
+          - Less than 5 hours
+          - 5-20 hours
+          - 20-40 hours
+          - 40+ hours
+
+      - type: radio
+        title: How concentrated is YAML expertise on your team?
+        options:
+          - Only 1-2 people really understand it deeply
+          - A few people (3-5) have good expertise
+          - Most of the team is comfortable with YAML
+          - Everyone on the team has strong YAML knowledge
+
+      - type: paragraph
+        title: "What's your biggest concern about your team's YAML management?"
+        required: false
+
+  - title: "Section 4: Security and Risk Management"
+    required: true
+    questions:
+      - type: radio
+        title: How does your organization manage YAML security risks?
+        options:
+          - Automated dependency scanning tools
+          - Manual monitoring of CVE databases
+          - Security team reviews
+          - Rely on library maintainers for notifications
+          - No formal process currently
+        allow_other: true
+
+      - type: radio
+        title: How quickly must you respond to critical YAML security vulnerabilities?
+        options:
+          - Within 24 hours
+          - Within 48 hours
+          - Within 1 week
+          - Within 1 month
+          - No specific SLA
+
+      - type: radio
+        title: Have YAML security issues impacted your operations?
+        options:
+          - Yes - caused incidents or required emergency response
+          - Yes - required significant mitigation effort
+          - Minor impacts only
+          - Not yet, but we're concerned about risk
+          - "No"
+
+      - type: checkbox
+        title: What compliance/regulatory requirements affect your YAML usage? (Check all that apply)
+        required: false
+        options:
+          - SOC 2
+          - ISO 27001
+          - PCI DSS
+          - HIPAA
+          - FedRAMP
+          - Financial services regulations
+          - None
+        allow_other: true
+
+  - title: "Section 5: Tooling and Support Gaps"
+    required: true
+    questions:
+      - type: checkbox
+        title: What tooling do you use for YAML management? (Check all that apply)
+        options:
+          - yamllint or similar linters
+          - Custom validation scripts
+          - IDE plugins
+          - Policy enforcement tools (OPA, Kyverno, etc.)
+          - GitOps platforms
+          - Configuration management platforms
+          - Not much - mostly manual
+        allow_other: true
+
+      - type: paragraph
+        title: Where are the biggest gaps in current YAML tooling/support?
+        required: false
+
+      - type: checkbox
+        title: How does your team currently get YAML expertise? (Check all that apply)
+        options:
+          - Internal subject matter experts
+          - Online resources (Stack Overflow, GitHub issues, blogs)
+          - Trial and error
+          - Community forums and Slack channels
+          - Vendor support (for specific tools using YAML)
+          - External consultants or contractors
+          - Paid training programs
+          - We struggle to find good resources
+        allow_other: true
+
+  - title: "Section 6: Value and Decision-Making"
+    required: true
+    questions:
+      - type: scale
+        title: "What would be most valuable to your team?"
+        description: "Rate each item: 1=Not valuable, 5=Very valuable"
+        scale:
+          low: 1
+          high: 5
+          low_label: Not valuable
+          high_label: Very valuable
+        items:
+          - Early security notifications (48 hours before public CVEs)
+          - Expert support channel for urgent issues
+          - Priority bug fixes and feature requests
+          - Team training and best practices workshops
+          - Security audits of our YAML usage
+          - Influence over YAML roadmap and future features
+          - Guaranteed SLAs for critical issues
+          - Professional documentation and reference materials
+          - Validation and testing tools
+          - Migration and consulting services
+
+      - type: radio
+        title: Would professional YAML support reduce risk or improve team efficiency?
+        options:
+          - Yes - significantly
+          - Yes - moderately
+          - Maybe - would depend on specifics
+          - Not sure
+
+      - type: paragraph
+        title: "If yes, how would it help most?"
+        required: false
+
+      - type: checkbox
+        title: What would make YAML support compelling for your organization? (Check all that apply)
+        required: false
+        options:
+          - Direct access to YAML creators/maintainers
+          - Proactive security monitoring and notifications
+          - Guaranteed response times
+          - Professional training for team
+          - Risk reduction and insurance against incidents
+          - Compliance/audit requirements
+          - Ability to influence roadmap for our needs
+          - Freeing up team time for higher-value work
+        allow_other: true
+
+      - type: radio
+        title: "Budget cycle:"
+        options:
+          - Annual planning
+          - Quarterly reviews
+          - Flexible/ongoing
+          - Not sure
+
+      - type: checkbox
+        title: "Decision-makers involved in purchasing infrastructure support: (Check all that apply)"
+        options:
+          - VP Engineering / CTO
+          - Director of Infrastructure/DevOps
+          - Security leadership
+          - Procurement/Finance
+          - Multiple departments must approve
+        allow_other: true
+
+      - type: radio
+        title: "Typical procurement timeline:"
+        options:
+          - Can decide quickly (within 1 month)
+          - 1-3 months
+          - 3-6 months
+          - 6-12 months
+          - Must wait for next budget cycle
+
+      - type: radio
+        title: What budget range would be reasonable for YAML infrastructure support?
+        options:
+          - Under $10K annually
+          - $10K-$25K annually
+          - $25K-$50K annually
+          - $50K-$100K annually
+          - $100K+ annually
+          - Not sure / need to understand value first
+
+  - title: "Section 7: Additional Context"
+    required: false
+    questions:
+      - type: paragraph
+        title: What else should we know about your YAML infrastructure or operational needs?
+        required: false
+
+      - type: radio
+        title: Would you be willing to participate in a 30-minute follow-up interview?
+        options:
+          - Yes, happy to discuss further
+          - Maybe, depending on timing
+          - No thanks
+
+      - type: text
+        title: Are there specific colleagues we should talk to about this? (Who else is involved in YAML decisions?)
+        required: false

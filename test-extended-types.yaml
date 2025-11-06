@@ -1,0 +1,259 @@
+title: "Extended Question Types Demo"
+description: |
+  This survey demonstrates all the extended question types supported
+  by the publish-survey system beyond the basic text, paragraph,
+  radio, checkbox, and scale types.
+
+  New types demonstrated:
+  - Dropdown menus
+  - Date and time pickers
+  - Star/heart/thumb ratings
+  - Grid questions (radio and checkbox matrices)
+  - Text display items
+
+required: false
+
+sections:
+  - title: "Basic Question Types"
+    questions:
+      # Text display item - introduction
+      - type: text_item
+        title: "Basic Types Overview"
+        description: |-
+          First, let's review the basic question types that are the foundation
+          of the survey system.
+
+      # Text - short answer
+      - type: text
+        title: "What is your full name?"
+
+      - type: text
+        title: "What is your email address? (optional)"
+
+      # Paragraph - long answer
+      - type: paragraph
+        title: "Please describe your experience with YAML"
+
+      - type: paragraph
+        title: "Any additional comments or feedback?"
+
+      # Radio - single choice
+      - type: radio
+        title: "What is your primary role?"
+        options:
+          - Engineer
+          - DevOps/Platform Manager
+          - Executive/Leadership
+          - Other
+
+      - type: radio
+        title: "How did you hear about this survey?"
+        shuffle: true
+        allow_other: true
+        options:
+          - Social media
+          - Email newsletter
+          - Colleague recommendation
+          - Conference or event
+          - Blog post
+
+      # Checkbox - multiple choice
+      - type: checkbox
+        title: "Which programming languages do you use? (select all that apply)"
+        options:
+          - Python
+          - JavaScript/TypeScript
+          - Go
+          - Java
+          - Ruby
+          - Rust
+          - C/C++
+          - Other
+
+      - type: checkbox
+        title: "Which cloud providers do you work with?"
+        shuffle: true
+        allow_other: true
+        options:
+          - AWS
+          - Google Cloud
+          - Azure
+          - DigitalOcean
+          - Heroku
+
+      # Scale - linear scale (single item)
+      - type: scale
+        title: "On a scale of 1-5, how satisfied are you with your current tools?"
+        scale:
+          low: 1
+          high: 5
+          low_label: "Not satisfied"
+          high_label: "Very satisfied"
+
+      - type: scale
+        title: "How likely are you to recommend our product?"
+        scale:
+          low: 0
+          high: 10
+          low_label: "Not likely"
+          high_label: "Extremely likely"
+
+      # Scale - multiple items (rating matrix)
+      - type: scale
+        title: "Rate your proficiency with these technologies"
+        scale:
+          low: 1
+          high: 5
+          low_label: "Beginner"
+          high_label: "Expert"
+        items:
+          - Docker
+          - Kubernetes
+          - CI/CD pipelines
+          - Infrastructure as Code
+          - Monitoring and observability
+
+  - title: "New Question Types Showcase"
+    questions:
+      # Text display item - shows instructions without requiring input
+      - type: text_item
+        title: "Instructions"
+        description: |
+          Welcome! This form demonstrates advanced question types.
+          Please complete all required questions below.
+
+      # Dropdown - compact single selection
+      - type: dropdown
+        title: "What is your country?"
+        options:
+          - United States
+          - Canada
+          - United Kingdom
+          - Germany
+          - France
+          - Australia
+          - Japan
+          - Other
+
+      - type: dropdown
+        title: "Select your preferred contact method (optional)"
+        shuffle: true
+        options:
+          - Email
+          - Phone
+          - Text message
+          - Video call
+          - In person
+
+      # Date questions
+      - type: date
+        title: "When would you like to schedule your appointment?"
+        include_time: false
+        include_year: true
+
+      - type: date
+        title: "What is your birth date?"
+        include_time: false
+        include_year: true
+
+      - type: date
+        title: "Select a date and time for the meeting"
+        include_time: true
+        include_year: true
+
+      # Time questions
+      - type: time
+        title: "What time of day works best for you?"
+        duration: false
+
+      - type: time
+        title: "How long did the task take? (duration)"
+        duration: true
+
+      # Rating questions with different icons
+      - type: rating
+        title: "How would you rate our customer service?"
+        scale_level: 5
+        icon_type: STAR
+
+      - type: rating
+        title: "How much do you love this product?"
+        scale_level: 5
+        icon_type: HEART
+
+      - type: rating
+        title: "Would you recommend us?"
+        scale_level: 10
+        icon_type: THUMB_UP
+
+      # Text display between sections
+      - type: text_item
+        title: "Grid Questions Section"
+        description: |
+          The following questions use grid/matrix format, allowing you to
+          rate multiple items using the same scale.
+
+      # Grid with radio buttons (single selection per row)
+      - type: grid_radio
+        title: "Rate each feature of our product"
+        rows:
+          - User interface
+          - Performance
+          - Reliability
+          - Documentation
+          - Customer support
+        columns:
+          - Poor
+          - Fair
+          - Good
+          - Very Good
+          - Excellent
+
+      - type: grid_radio
+        title: "How often do you use these technologies?"
+        shuffle_rows: false
+        rows:
+          - Docker
+          - Kubernetes
+          - Terraform
+          - Ansible
+        columns:
+          - Never
+          - Rarely
+          - Sometimes
+          - Often
+          - Daily
+
+      # Grid with checkboxes (multiple selections per row)
+      - type: grid_checkbox
+        title: "Which features would you use in each product tier?"
+        rows:
+          - Basic Tier
+          - Professional Tier
+          - Enterprise Tier
+        columns:
+          - API Access
+          - Priority Support
+          - Custom Integrations
+          - Advanced Analytics
+          - White-labeling
+
+      - type: grid_checkbox
+        title: "Select all devices you use for each activity"
+        shuffle_rows: true
+        rows:
+          - Working
+          - Entertainment
+          - Communication
+        columns:
+          - Desktop/Laptop
+          - Tablet
+          - Smartphone
+          - Smart TV
+
+      # Final thank you message
+      - type: text_item
+        title: "Thank you!"
+        description: |
+          You've reached the end of this demo. Thank you for exploring
+          all the extended question types available in our survey system.

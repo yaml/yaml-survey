@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YAML Infrastructure Survey</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 900px;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 60px 40px;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            color: #2d3748;
+            margin-bottom: 16px;
+            font-weight: 700;
+        }
+
+        .subtitle {
+            font-size: 1.25rem;
+            color: #4a5568;
+            margin-bottom: 48px;
+            font-weight: 400;
+        }
+
+        .intro {
+            font-size: 1rem;
+            color: #718096;
+            margin-bottom: 48px;
+            line-height: 1.8;
+            text-align: left;
+            padding: 0 20px;
+        }
+
+        .roles {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 24px;
+            margin-bottom: 40px;
+        }
+
+        .role-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 12px;
+            padding: 32px 24px;
+            text-decoration: none;
+            color: white;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .role-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 24px rgba(102, 126, 234, 0.4);
+        }
+
+        .role-card.disabled {
+            background: linear-gradient(135deg, #a0aec0 0%, #718096 100%);
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .role-card.disabled:hover {
+            transform: none;
+            box-shadow: none;
+        }
+
+        .role-icon {
+            font-size: 3rem;
+            margin-bottom: 16px;
+        }
+
+        .role-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+
+        .role-description {
+            font-size: 0.95rem;
+            opacity: 0.9;
+            line-height: 1.5;
+        }
+
+        .coming-soon {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            margin-top: 12px;
+            font-weight: 600;
+        }
+
+        .footer {
+            margin-top: 48px;
+            padding-top: 32px;
+            border-top: 2px solid #e2e8f0;
+            color: #718096;
+            font-size: 0.9rem;
+        }
+
+        .footer-content {
+            text-align: left;
+            padding: 0 20px;
+        }
+
+        .footer-content p {
+            margin-bottom: 8px;
+        }
+
+        .footer-content strong {
+            color: #2d3748;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 40px 24px;
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
+
+            .subtitle {
+                font-size: 1.1rem;
+            }
+
+            .roles {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>YAML Infrastructure Survey</h1>
+        <p class="subtitle">Help us understand your YAML needs</p>
+
+        <div class="intro">
+            <p><strong>Thank you for your interest in participating!</strong></p>
+            <p>We're gathering insights about YAML infrastructure usage, challenges, and support needs. Your feedback will help us develop better tools and support for teams working with YAML.</p>
+            <p>Please select the survey that best matches your role:</p>
+        </div>
+
+        <div class="roles">
+            <a href="ENGINEER_FORM_URL" class="role-card" id="engineer-card">
+                <div class="role-icon">👨‍💻</div>
+                <div class="role-title">Engineers</div>
+                <div class="role-description">
+                    Software engineers, developers, and technical contributors who work directly with YAML files
+                </div>
+            </a>
+
+            <!--a href="DEVOPS_FORM_URL" class="role-card" id="devops-card"-->
+            <a href="#" class="role-card disabled" onclick="return false;">
+                <div class="role-icon">🛠️</div>
+                <div class="role-title">DevOps/Platform Teams</div>
+                <div class="role-description">
+                    DevOps engineers, SREs, and platform team leads managing YAML infrastructure
+                </div>
+                <span class="coming-soon">Coming Soon</span>
+            </a>
+
+            <!--a href="LEADERSHIP_FORM_URL" class="role-card" id="leadership-card"-->
+            <a href="#" class="role-card disabled" onclick="return false;">
+                <div class="role-icon">👔</div>
+                <div class="role-title">Engineering Leadership</div>
+                <div class="role-description">
+                    CTOs, VPs of Engineering, and technical decision-makers
+                </div>
+                <span class="coming-soon">Coming Soon</span>
+            </a>
+        </div>
+
+        <div class="footer">
+            <div class="footer-content">
+                <p><strong>About YAML LLC:</strong></p>
+                <p>YAML LLC is being founded by Ingy döt Net (co-creator of YAML) to provide professional maintenance and enterprise support for critical YAML infrastructure. We maintain libyaml, PyYAML, go-yaml, and own yaml.com and github.com/yaml.</p>
+                <p style="margin-top: 16px;"><strong>Estimated time:</strong> 5-7 minutes</p>
+                <p><strong>Privacy:</strong> Your responses are confidential and will not be shared without permission.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Configuration: Replace these URLs with your actual Google Form URLs
+        const FORM_URLS = {
+            engineer: 'ENGINEER_FORM_URL', // Replace with actual engineer form URL
+            devops: 'DEVOPS_FORM_URL',     // Replace when devops form is ready
+            leadership: 'LEADERSHIP_FORM_URL' // Replace when leadership form is ready
+        };
+
+        // Set the engineer form URL (update the href attribute when form is created)
+        document.getElementById('engineer-card').href = FORM_URLS.engineer;
+        document.getElementById('devops-card').href = FORM_URLS.devops;
+        document.getElementById('leadership-card').href = FORM_URLS.leadership;
+
+        // Alert for disabled cards (optional - can be removed in production)
+        document.querySelectorAll('.role-card.disabled').forEach(card => {
+            card.addEventListener('click', function(e) {
+                e.preventDefault();
+                alert('This survey will be available soon. Please check back later!');
+            });
+        });
+    </script>
+</body>
+</html>

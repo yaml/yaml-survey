@@ -1,0 +1,170 @@
+title: "Test Survey - All Question Types"
+description: |
+  This is a test survey demonstrating all available question types
+  supported by the publish-survey script.
+
+  Question types demonstrated:
+  - Text (short answer)
+  - Paragraph (long answer)
+  - Radio (single choice)
+  - Checkbox (multiple choice)
+  - Scale (linear scale - single item)
+  - Scale (linear scale - multiple items/matrix)
+
+sections:
+  - title: "Section 1: Text Questions"
+    required: false
+    questions:
+      - type: text
+        title: What is your name?
+
+      - type: text
+        title: What is your email? (Optional)
+        required: false
+
+      - type: paragraph
+        title: Tell us about your experience with YAML
+
+      - type: paragraph
+        title: Any additional comments? (Optional)
+        required: false
+
+  - title: "Section 2: Choice Questions"
+    required: true
+    questions:
+      - type: radio
+        title: What is your primary role?
+        options:
+          - Software Engineer
+          - DevOps Engineer
+          - Platform Engineer
+          - Technical Lead
+          - Engineering Manager
+
+      - type: radio
+        title: What is your preferred editor? (with 'Other' option)
+        required: false
+        allow_other: true
+        options:
+          - VS Code
+          - IntelliJ IDEA
+          - Vim
+          - Emacs
+          - Sublime Text
+
+      - type: checkbox
+        title: Which technologies do you use? (Select all that apply)
+        options:
+          - Kubernetes
+          - Docker
+          - Terraform
+          - Ansible
+          - AWS
+          - Azure
+          - GCP
+
+      - type: checkbox
+        title: Which languages do you know? (with 'Other' option)
+        required: false
+        allow_other: true
+        options:
+          - Python
+          - JavaScript/TypeScript
+          - Go
+          - Java
+          - Rust
+          - C/C++
+
+  - title: "Section 3: Scale Questions (Single Item)"
+    required: true
+    questions:
+      - type: scale
+        title: How satisfied are you with your current YAML tooling?
+        description: Rate your satisfaction level from 1 (Not at all satisfied) to 5 (Extremely satisfied)
+        scale:
+          low: 1
+          high: 5
+          low_label: Not satisfied
+          high_label: Very satisfied
+
+      - type: scale
+        title: How likely are you to recommend YAML to a colleague?
+        required: false
+        scale:
+          low: 0
+          high: 10
+          low_label: Not likely
+          high_label: Very likely
+
+  - title: "Section 4: Scale Questions (Multiple Items / Matrix)"
+    required: true
+    questions:
+      - type: scale
+        title: Rate the following YAML features
+        description: Please rate each feature on a scale from 1 (Poor) to 5 (Excellent)
+        scale:
+          low: 1
+          high: 5
+          low_label: Poor
+          high_label: Excellent
+        items:
+          - Readability
+          - Ease of use
+          - Documentation quality
+          - Tool support
+          - Error messages
+
+      - type: scale
+        title: How important are these factors to you?
+        description: Rate each factor from 1 (Not important) to 7 (Very important)
+        required: false
+        scale:
+          low: 1
+          high: 7
+          low_label: Not important
+          high_label: Very important
+        items:
+          - Performance
+          - Security
+          - Maintainability
+          - Developer experience
+          - Community support
+
+  - title: "Section 5: Mixed Questions"
+    required: false
+    questions:
+      - type: text
+        title: What is your company name?
+        required: false
+
+      - type: radio
+        title: Company size
+        options:
+          - 1-10 employees
+          - 11-50 employees
+          - 51-200 employees
+          - 201-1000 employees
+          - 1000+ employees
+
+      - type: checkbox
+        title: Which of these challenges have you faced?
+        required: false
+        allow_other: true
+        options:
+          - Configuration drift
+          - Version control issues
+          - Syntax errors
+          - Schema validation problems
+          - Poor documentation
+
+      - type: scale
+        title: Overall YAML experience rating
+        scale:
+          low: 1
+          high: 10
+          low_label: Terrible
+          high_label: Amazing
+
+      - type: paragraph
+        title: Final thoughts or suggestions
+        required: false

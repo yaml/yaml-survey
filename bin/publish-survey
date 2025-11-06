@@ -1,0 +1,721 @@
+#!/usr/bin/env python3
+
+"""
+Script to create a Google Form from a YAML survey definition.
+
+Prerequisites:
+1. Enable Google Forms API and Google Sheets API in Google Cloud Console
+2. Create OAuth 2.0 credentials and download as 'credentials.json'
+3. Install required packages: pip install -r requirements.txt
+
+Usage:
+    ./publish-survey <path-to-yaml-file> [<path-to-yaml-file> ...]
+
+Examples:
+    ./publish-survey ../survey/engineers.yaml
+    ./publish-survey ../survey/*.yaml
+"""
+
+from google.oauth2.credentials import Credentials
+from google_auth_oauthlib.flow import InstalledAppFlow
+from google.auth.transport.requests import Request
+from googleapiclient.discovery import build
+from googleapiclient.errors import HttpError
+import os.path
+import pickle
+import yaml
+import sys
+
+# If modifying these scopes, delete the file token.pickle.
+SCOPES = [
+    'https://www.googleapis.com/auth/forms.body',
+    'https://www.googleapis.com/auth/spreadsheets',
+    'https://www.googleapis.com/auth/drive.file'
+]
+
+
+def get_credentials():
+    """Get or create credentials for Google Forms API."""
+    creds = None
+    if os.path.exists('token.pickle'):
+        with open('token.pickle', 'rb') as token:
+            creds = pickle.load(token)
+
+    if not creds or not creds.valid:
+        if creds and creds.expired and creds.refresh_token:
+            creds.refresh(Request())
+        else:
+            flow = InstalledAppFlow.from_client_secrets_file(
+                'credentials.json', SCOPES)
+            creds = flow.run_local_server(port=0)
+
+        with open('token.pickle', 'wb') as token:
+            pickle.dump(creds, token)
+
+    return creds
+
+
+def load_survey_yaml(yaml_path):
+    """Load survey definition from YAML file."""
+    with open(yaml_path, 'r') as f:
+        return yaml.safe_load(f)
+
+
+def save_urls_to_config(yaml_path, form_url, edit_url, sheet_url):
+    """Save generated URLs to config.yaml in the current working directory."""
+    # Extract basename from yaml path (e.g., "engineers.yaml" -> "engineers")
+    basename = os.path.splitext(os.path.basename(yaml_path))[0]
+
+    # Config file is in the current working directory
+    config_path = os.path.join(os.getcwd(), 'config.yaml')
+
+    # Load existing config or create empty dict
+    config = {}
+    if os.path.exists(config_path):
+        try:
+            with open(config_path, 'r') as f:
+                config = yaml.safe_load(f) or {}
+        except Exception as e:
+            print(f"Warning: Could not read existing config.yaml: {e}")
+            config = {}
+
+    # Update config with new URLs
+    config[f'{basename}-form-url'] = form_url
+    config[f'{basename}-edit-url'] = edit_url
+    if sheet_url:
+        config[f'{basename}-sheet-url'] = sheet_url
+
+    # Write updated config
+    try:
+        with open(config_path, 'w') as f:
+            yaml.dump(config, f, default_flow_style=False, sort_keys=True)
+        print(f"\nURLs saved to {config_path}")
+    except Exception as e:
+        print(f"Warning: Could not save to config.yaml: {e}")
+
+
+def create_text_question(title, required=True, paragraph=False):
+    """Create a text question item."""
+    return {
+        "title": title,
+        "questionItem": {
+            "question": {
+                "required": required,
+                "textQuestion": {
+                    "paragraph": paragraph
+                }
+            }
+        }
+    }
+
+
+def create_radio_question(title, options, required=True, allow_other=False):
+    """Create a radio (single choice) question item."""
+    option_list = [{"value": opt} for opt in options]
+    if allow_other:
+        option_list.append({"isOther": True})
+
+    return {
+        "title": title,
+        "questionItem": {
+            "question": {
+                "required": required,
+                "choiceQuestion": {
+                    "type": "RADIO",
+                    "options": option_list
+                }
+            }
+        }
+    }
+
+
+def create_checkbox_question(title, options, required=True, allow_other=False):
+    """Create a checkbox (multiple choice) question item."""
+    option_list = [{"value": opt} for opt in options]
+    if allow_other:
+        option_list.append({"isOther": True})
+
+    return {
+        "title": title,
+        "questionItem": {
+            "question": {
+                "required": required,
+                "choiceQuestion": {
+                    "type": "CHECKBOX",
+                    "options": option_list
+                }
+            }
+        }
+    }
+
+
+def create_scale_question(title, low, high, low_label, high_label, required=True, description=None):
+    """Create a scale question item."""
+    item = {
+        "title": title,
+        "questionItem": {
+            "question": {
+                "required": required,
+                "scaleQuestion": {
+                    "low": low,
+                    "high": high,
+                    "lowLabel": low_label,
+                    "highLabel": high_label
+                }
+            }
+        }
+    }
+
+    if description:
+        item["description"] = description
+
+    return item
+
+
+def create_dropdown_question(title, options, required=True, shuffle=False):
+    """Create a dropdown question item."""
+    option_list = [{"value": opt} for opt in options]
+
+    return {
+        "title": title,
+        "questionItem": {
+            "question": {
+                "required": required,
+                "choiceQuestion": {
+                    "type": "DROP_DOWN",
+                    "options": option_list,
+                    "shuffle": shuffle
+                }
+            }
+        }
+    }
+
+
+def create_date_question(title, required=True, include_time=False, include_year=True):
+    """Create a date question item.
+
+    Args:
+        title: Question text
+        required: Whether answer is required
+        include_time: If true, adds time component to date picker
+        include_year: If true, includes year selection (default true)
+    """
+    return {
+        "title": title,
+        "questionItem": {
+            "question": {
+                "required": required,
+                "dateQuestion": {
+                    "includeTime": include_time,
+                    "includeYear": include_year
+                }
+            }
+        }
+    }
+
+
+def create_time_question(title, required=True, duration=False):
+    """Create a time question item.
+
+    Args:
+        title: Question text
+        required: Whether answer is required
+        duration: If true, asks for elapsed time; if false, asks for time of day
+    """
+    return {
+        "title": title,
+        "questionItem": {
+            "question": {
+                "required": required,
+                "timeQuestion": {
+                    "duration": duration
+                }
+            }
+        }
+    }
+
+
+def create_rating_question(title, scale_level=5, icon_type="STAR", required=True):
+    """Create a rating question with visual icons.
+
+    Args:
+        title: Question text
+        scale_level: Number of rating options (e.g., 5 for 5-star rating)
+        icon_type: Visual representation - "STAR", "HEART", or "THUMB_UP"
+        required: Whether answer is required
+    """
+    valid_icons = ["STAR", "HEART", "THUMB_UP"]
+    if icon_type not in valid_icons:
+        print(f"Warning: icon_type '{icon_type}' not valid. Using 'STAR'. Valid options: {valid_icons}")
+        icon_type = "STAR"
+
+    return {
+        "title": title,
+        "questionItem": {
+            "question": {
+                "required": required,
+                "ratingQuestion": {
+                    "ratingScaleLevel": scale_level,
+                    "iconType": icon_type
+                }
+            }
+        }
+    }
+
+
+def create_grid_radio_question(title, rows, columns, required=True, shuffle_rows=False):
+    """Create a multiple choice grid question.
+
+    Args:
+        title: Grid title/description
+        rows: List of row labels (e.g., ["Item 1", "Item 2"])
+        columns: List of column options (e.g., ["Strongly Disagree", "Disagree", ...])
+        required: Whether all rows must be answered
+        shuffle_rows: Randomize row order
+    """
+    questions = [
+        {
+            "required": required,
+            "rowQuestion": {
+                "title": row_title
+            }
+        }
+        for row_title in rows
+    ]
+
+    column_options = [{"value": col} for col in columns]
+
+    return {
+        "title": title,
+        "questionGroupItem": {
+            "questions": questions,
+            "grid": {
+                "columns": {
+                    "type": "RADIO",
+                    "options": column_options
+                },
+                "shuffleQuestions": shuffle_rows
+            }
+        }
+    }
+
+
+def create_grid_checkbox_question(title, rows, columns, required=True, shuffle_rows=False):
+    """Create a checkbox grid question.
+
+    Args:
+        title: Grid title/description
+        rows: List of row labels
+        columns: List of column options (multiple selections allowed per row)
+        required: Whether all rows must have at least one selection
+        shuffle_rows: Randomize row order
+    """
+    questions = [
+        {
+            "required": required,
+            "rowQuestion": {
+                "title": row_title
+            }
+        }
+        for row_title in rows
+    ]
+
+    column_options = [{"value": col} for col in columns]
+
+    return {
+        "title": title,
+        "questionGroupItem": {
+            "questions": questions,
+            "grid": {
+                "columns": {
+                    "type": "CHECKBOX",
+                    "options": column_options
+                },
+                "shuffleQuestions": shuffle_rows
+            }
+        }
+    }
+
+
+def create_text_item(title, description=None):
+    """Create a text display item (no user input).
+
+    Args:
+        title: Heading text
+        description: Optional body text
+    """
+    item = {
+        "title": title,
+        "textItem": {}
+    }
+    if description:
+        item["description"] = description
+    return item
+
+
+def create_page_break(title):
+    """Create a page break (section) item."""
+    return {
+        "title": title,
+        "pageBreakItem": {}
+    }
+
+
+def enable_email_collection(service, form_id, collection_type='VERIFIED'):
+    """Enable email collection for a Google Form.
+
+    Args:
+        service: Google Forms API service instance
+        form_id: The form ID to update
+        collection_type: 'VERIFIED' (requires sign-in) or 'RESPONDER_INPUT' (optional field)
+
+    Returns:
+        True if successful, False otherwise
+    """
+    try:
+        update_request = {
+            'requests': [{
+                'updateSettings': {
+                    'settings': {
+                        'emailCollectionType': collection_type
+                    },
+                    'updateMask': 'emailCollectionType'
+                }
+            }]
+        }
+
+        service.forms().batchUpdate(
+            formId=form_id,
+            body=update_request
+        ).execute()
+
+        print(f"\n✓ Email collection enabled: {collection_type}")
+
+        if collection_type == 'VERIFIED':
+            print("  → Respondents will sign in with Google")
+            print("  → Email addresses will be automatically collected")
+            print("  → Emails will appear in 'Email Address' column when spreadsheet is linked")
+        else:
+            print("  → An email field will be added to the form")
+
+        return True
+
+    except HttpError as error:
+        print(f'Error enabling email collection: {error}')
+        print(f'You may need to enable this manually in the form settings.')
+        return False
+
+
+def create_and_link_spreadsheet(creds, form_id, form_title):
+    """Create a Google Sheet and link it to the form for collecting responses."""
+    try:
+        # Build services
+        sheets_service = build('sheets', 'v4', credentials=creds)
+        forms_service = build('forms', 'v1', credentials=creds)
+
+        # Create a new spreadsheet
+        spreadsheet = {
+            'properties': {
+                'title': f'{form_title} (Responses)'
+            }
+        }
+
+        spreadsheet_result = sheets_service.spreadsheets().create(
+            body=spreadsheet,
+            fields='spreadsheetId'
+        ).execute()
+
+        spreadsheet_id = spreadsheet_result['spreadsheetId']
+        spreadsheet_url = f"https://docs.google.com/spreadsheets/d/{spreadsheet_id}/edit"
+
+        print(f"\nCreated response spreadsheet!")
+        print(f"Spreadsheet URL: {spreadsheet_url}")
+
+        # Link the spreadsheet to the form as response destination
+        print(f"Linking spreadsheet to form...")
+
+        link_request = {
+            'requests': [{
+                'updateSettings': {
+                    'settings': {
+                        'quizSettings': {
+                            'isQuiz': False
+                        }
+                    },
+                    'updateMask': 'quizSettings'
+                }
+            }]
+        }
+
+        # Use batchUpdate to set the response destination
+        # Note: The Google Forms API v1 doesn't directly support setting spreadsheet destinations
+        # This is a known limitation - it must be done through the UI or Apps Script
+
+        print("\nNote: Due to Google Forms API limitations, the spreadsheet has been created")
+        print("but must be linked manually. This takes just a few seconds:")
+        print(f"\n1. Open the form: https://docs.google.com/forms/d/{form_id}/edit")
+        print(f"2. Click the 'Responses' tab")
+        print(f"3. Click the Google Sheets icon (green spreadsheet)")
+        print(f"4. Choose 'Select existing spreadsheet'")
+        print(f"5. Find and select: '{form_title} (Responses)'")
+        print(f"\nAlternatively, you can open the sheet directly and it will be in your Drive:")
+        print(f"{spreadsheet_url}")
+
+        return spreadsheet_id, spreadsheet_url
+
+    except HttpError as error:
+        print(f'\nError creating spreadsheet: {error}')
+        print('You can manually create and link a spreadsheet from the form\'s Responses tab')
+        return None, None
+
+
+def create_form_from_yaml(yaml_path):
+    """Create a Google Form from a YAML survey definition."""
+    # Load survey data
+    survey = load_survey_yaml(yaml_path)
+
+    # Get credentials and build service
+    creds = get_credentials()
+    service = build('forms', 'v1', credentials=creds)
+
+    try:
+        # Create the form
+        form = {
+            "info": {
+                "title": survey['title'],
+                "documentTitle": survey['title'],
+            }
+        }
+
+        result = service.forms().create(body=form).execute()
+        form_id = result['formId']
+        print(f"Form created! ID: {form_id}")
+        print(f"Edit URL: https://docs.google.com/forms/d/{form_id}/edit")
+        print(f"Response URL: https://docs.google.com/forms/d/{form_id}/viewform")
+
+        # Build the batch update request with all questions
+        requests = []
+
+        # Add description
+        if 'description' in survey:
+            requests.append({
+                "updateFormInfo": {
+                    "info": {
+                        "title": survey['title'],
+                        "description": survey['description']
+                    },
+                    "updateMask": "description"
+                }
+            })
+
+        location_index = 0
+
+        # Get survey-level default for 'required' (if specified)
+        survey_default_required = survey.get('required', False)
+
+        # Process sections and questions
+        for section in survey['sections']:
+            # Add section page break
+            requests.append({
+                "createItem": {
+                    "item": create_page_break(section['title']),
+                    "location": {"index": location_index}
+                }
+            })
+            location_index += 1
+
+            # Get section-level default for 'required' (falls back to survey default)
+            section_default_required = section.get('required', survey_default_required)
+
+            # Add questions in this section
+            for question in section['questions']:
+                q_type = question['type']
+                q_title = question['title']
+                # Question-level 'required' overrides section/survey defaults
+                q_required = question.get('required', section_default_required)
+
+                if q_type == 'text':
+                    item = create_text_question(q_title, q_required, paragraph=False)
+
+                elif q_type == 'paragraph':
+                    item = create_text_question(q_title, q_required, paragraph=True)
+
+                elif q_type == 'radio':
+                    options = question['options']
+                    allow_other = question.get('allow_other', False)
+                    item = create_radio_question(q_title, options, q_required, allow_other)
+
+                elif q_type == 'checkbox':
+                    options = question['options']
+                    allow_other = question.get('allow_other', False)
+                    item = create_checkbox_question(q_title, options, q_required, allow_other)
+
+                elif q_type == 'scale':
+                    # Handle scale questions - can be single or multiple items
+                    if 'items' in question:
+                        # Multiple scale questions (one for each item)
+                        # First add a description/header
+                        description = question.get('description', '')
+                        if description:
+                            desc_item = {
+                                "title": q_title,
+                                "description": description,
+                                "questionItem": {
+                                    "question": {
+                                        "required": False,
+                                        "textQuestion": {
+                                            "paragraph": False
+                                        }
+                                    }
+                                }
+                            }
+                            requests.append({
+                                "createItem": {
+                                    "item": desc_item,
+                                    "location": {"index": location_index}
+                                }
+                            })
+                            location_index += 1
+
+                        # Add each scale item
+                        scale_config = question['scale']
+                        for item_title in question['items']:
+                            scale_item = create_scale_question(
+                                item_title,
+                                scale_config['low'],
+                                scale_config['high'],
+                                scale_config['low_label'],
+                                scale_config['high_label'],
+                                q_required
+                            )
+                            requests.append({
+                                "createItem": {
+                                    "item": scale_item,
+                                    "location": {"index": location_index}
+                                }
+                            })
+                            location_index += 1
+
+                        # Skip the normal item creation below
+                        continue
+                    else:
+                        # Single scale question
+                        scale_config = question['scale']
+                        description = question.get('description')
+                        item = create_scale_question(
+                            q_title,
+                            scale_config['low'],
+                            scale_config['high'],
+                            scale_config['low_label'],
+                            scale_config['high_label'],
+                            q_required,
+                            description
+                        )
+
+                elif q_type == 'dropdown':
+                    options = question['options']
+                    shuffle = question.get('shuffle', False)
+                    item = create_dropdown_question(q_title, options, q_required, shuffle)
+
+                elif q_type == 'date':
+                    include_time = question.get('include_time', False)
+                    include_year = question.get('include_year', True)
+                    item = create_date_question(q_title, q_required, include_time, include_year)
+
+                elif q_type == 'time':
+                    duration = question.get('duration', False)
+                    item = create_time_question(q_title, q_required, duration)
+
+                elif q_type == 'rating':
+                    scale_level = question.get('scale_level', 5)
+                    icon_type = question.get('icon_type', 'STAR')
+                    item = create_rating_question(q_title, scale_level, icon_type, q_required)
+
+                elif q_type == 'grid_radio':
+                    rows = question['rows']
+                    columns = question['columns']
+                    shuffle_rows = question.get('shuffle_rows', False)
+                    item = create_grid_radio_question(q_title, rows, columns, q_required, shuffle_rows)
+
+                elif q_type == 'grid_checkbox':
+                    rows = question['rows']
+                    columns = question['columns']
+                    shuffle_rows = question.get('shuffle_rows', False)
+                    item = create_grid_checkbox_question(q_title, rows, columns, q_required, shuffle_rows)
+
+                elif q_type == 'text_item':
+                    description = question.get('description')
+                    item = create_text_item(q_title, description)
+
+                else:
+                    print(f"Warning: Unknown question type '{q_type}', skipping")
+                    continue
+
+                # Add the question to the form
+                requests.append({
+                    "createItem": {
+                        "item": item,
+                        "location": {"index": location_index}
+                    }
+                })
+                location_index += 1
+
+        # Execute batch update
+        print("\nAdding questions to the form...")
+        question_setting = {
+            'requests': requests
+        }
+
+        question_response = service.forms().batchUpdate(
+            formId=form_id,
+            body=question_setting
+        ).execute()
+
+        print(f"Successfully added {len(requests)} items to the form!")
+        print(f"\nForm is ready to use:")
+        edit_url = f"https://docs.google.com/forms/d/{form_id}/edit"
+        form_url = f"https://docs.google.com/forms/d/{form_id}/viewform"
+        print(f"Edit: {edit_url}")
+        print(f"Share: {form_url}")
+
+        # Enable email collection BEFORE linking spreadsheet
+        # This ensures the Email Address column appears when spreadsheet is linked
+        enable_email_collection(service, form_id, collection_type='VERIFIED')
+
+        # Create and link response spreadsheet
+        spreadsheet_id, spreadsheet_url = create_and_link_spreadsheet(
+            creds, form_id, survey['title']
+        )
+
+        # Save URLs to config.yaml
+        save_urls_to_config(yaml_path, form_url, edit_url, spreadsheet_url)
+
+        return form_id
+
+    except HttpError as error:
+        print(f'An error occurred: {error}')
+        return None
+
+
+if __name__ == '__main__':
+    if len(sys.argv) < 2:
+        print("Usage: ./publish-survey <path-to-yaml-file> [<path-to-yaml-file> ...]")
+        print("Examples:")
+        print("  ./publish-survey ../survey/engineers.yaml")
+        print("  ./publish-survey ../survey/*.yaml")
+        sys.exit(1)
+
+    yaml_paths = sys.argv[1:]
+
+    # Validate all files exist first
+    for yaml_path in yaml_paths:
+        if not os.path.exists(yaml_path):
+            print(f"Error: YAML file not found: {yaml_path}")
+            sys.exit(1)
+
+    # Process each file
+    for yaml_path in yaml_paths:
+        print(f"\n{'=' * 70}")
+        print(f"Processing: {yaml_path}")
+        print('=' * 70)
+        create_form_from_yaml(yaml_path)
