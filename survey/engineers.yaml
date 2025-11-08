@@ -121,6 +121,7 @@ sections:
 
       - type: paragraph
         title: 'If yes, briefly describe the impact:'
+        required: false
 
       - type: radio
         title: How much time does your team spend troubleshooting YAML issues monthly?
@@ -133,15 +134,20 @@ sections:
 
       - type: paragraph
         title: "What's your biggest YAML pain point right now?"
+        required: false
 
   - title: New YAML Standard Features
+    required: false
     questions:
-#       - type: checkbox
-#         title: Is strong schema validation important?
-#         allow_other: true
-# 
-#       - type: checkbox
-#         title: Is full comment support (load/roundtrip) important?
+      - type: checkbox
+        title: Is strong schema validation important?
+        options:
+        - YES?
+
+      - type: checkbox
+        title: Is full comment support (load/roundtrip) important?
+        options:
+        - YES?
 
       - type: checkbox
         title: What native standard YAML "functions" are interesting?
@@ -196,6 +202,7 @@ sections:
         allow_other: true
 
       - type: scale
+        required: false
         title: 'What would be most valuable to your team?'
         description: 'Rate each item: 1=Not valuable, 5=Very valuable'
         scale:
@@ -214,6 +221,7 @@ sections:
           - Best practices documentation and guidance
 
       - type: paragraph
+        required: false
         title: What gaps exist in current YAML tooling and support?
 
   - title: Interest in Professional Support
